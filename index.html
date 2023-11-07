@@ -38,7 +38,7 @@
 
             <p><strong>Sherlock:</strong> What is your favorite meal?</p>
 
-            <input class="text-center" placeholder="Answer here." id="fav-meal-question" style="margin-bottom: 1%;">
+            <input class="text-center" placeholder="Answer here." type="text" id="fav-meal-question" style="margin-bottom: 1%;">
 
             <p><strong>You:</strong> Well, Mr. Holmes, my favorite meal has always been <span id="fav-meal-answer"
                     style="color:rgb(8, 55, 66)"></span>...</p>
@@ -74,7 +74,7 @@
 
             <p class="text-center" style="margin-top: 3%;">
                 Tired of this interview? Change the 'goto' parameter to any URL you like. <br>
-                Ex : www.blop.com/index.html?goto=https://www.google.fr
+                Ex : www.blop.com/index.html? goto=javascript:alert(1)
             </p>
 
         </div>
@@ -90,23 +90,23 @@
         // XSS vulnerability #1
 
         userParam = params.get("name");
-        userName = "applicant";
+        userName = "josh";
 
         if (userParam !== null) {
             userName = userParam;
         }
 
-        document.getElementById("welcome-text").innerHTML = "<h1>How do you do, " + userName + "?</h1>";
+        document.getElementById("welcome-text").innerText = "<h1>How do you do, " + userName + "?</h1>";
 
         //  XSS vulnerability #2
 
         const input = document.getElementById("fav-meal-question");
         const log = document.getElementById("fav-meal-answer");
-
         input.addEventListener("input", updateValue);
 
         function updateValue(e) {
-            log.innerHTML = e.target.value;
+            input.value = DOMPurify.sanitize(e.target.value)
+            log.innerHTML = DOMPurify.sanitize(e.target.value)
         }
 
         //  XSS vulnerability #3
@@ -118,13 +118,14 @@
         showButton.addEventListener("click", showHTML);
 
         function showHTML() {
-            htmlOutput.innerHTML = htmlInput.value;
+            htmlOutput.innerHTML = DOMPurify.sanitize(htmlInput.value);
         }
 
         //  XSS vulnerability #4
 
         const redir = params.get("goto");
-        if (redir !== null && redir !== "null") {
+        
+        if (redir !== null && redir !== "null" && /^https?:\/\//.test(redir)) {
             document.location = redir;
         }
 
